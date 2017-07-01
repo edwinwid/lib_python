@@ -116,6 +116,7 @@ def lookup_valrange(df, col_value, df_lookup, col_min, col_max, col_out, ge=True
 	else:
 		return str(df_temp.iloc[0][col_out]) 
 
+	
 
 #=========================================================================================
 # 									VERSION CHANGE
