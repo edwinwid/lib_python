@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #=========================================================================================
 # lib_general_pandas.py
 # V.1.0.0
@@ -61,21 +62,21 @@ def lookup_valrange(df, col_value, df_lookup, col_min, col_max, col_out, ge=True
 	* ge = greater than and equal to the value in col_min, otherwise strictly greater than
 	* le = less than and equal to the value in col_max, otherwise strictly less than
 	* firstentry = behavior when there're duplicate matches:
-			* 'first' : get the first match
-			* 'last : get the last match
-			* 'none' : return string 'DUPLICATE <N duplicates>' when there's duplicate
+			* 'first' 	: get the first match
+			* 'last 	: get the last match
+			* 'none' 	: return string 'DUPLICATE <N duplicates>' when there's duplicate
 	EXAMPLE: lookup tax rate.
 		* df = dataframe with column 'INCOME'
-		* col_value = 'INCOME'
-		* df_lookup = tax rate lookup dataframe, with columns 'MIN_INCOME_BRACKET', 'MAX_INCOME_BRACKET',
-				'TAX_RATE'. 
-				Assume tax bracket info as follows: 'MIN_INCOME_BRACKET' <= INCOME < 'MAX_INCOME_BRACKET'
-		* col_min = 'MIN_INCOME_BRACKET'
-		* col_max = 'MAX_INCOME_BRACKET'
-		* col_out = 'TAX_RATE'
-		* ge = False (see assumption on tax bracket above)
-		* le = True (see assumption on tax bracket above)
-		* firstentry = 'none' (this way we know if there's something wrong with the df_lookup)
+		* col_value 	= 'INCOME'
+		* df_lookup 	= tax rate lookup dataframe, with columns 'MIN_INCOME_BRACKET', 'MAX_INCOME_BRACKET',
+						'TAX_RATE'. 
+						Assume tax bracket info as follows: 'MIN_INCOME_BRACKET' <= INCOME < 'MAX_INCOME_BRACKET'
+		* col_min 		= 'MIN_INCOME_BRACKET'
+		* col_max 		= 'MAX_INCOME_BRACKET'
+		* col_out 		= 'TAX_RATE'
+		* ge 			= False (see assumption on tax bracket above)
+		* le 			= True (see assumption on tax bracket above)
+		* firstentry 	= 'none' (this way we know if there's something wrong with the df_lookup)
 	'''
 	value = df[col_value]
 	try:
