@@ -16,7 +16,7 @@ from lib_general_pandas import *
 logger = logging.getLogger(__name__)
 
 
-# --- test functionalities ---
+# ---- test data ----
 df_lookup = pd.DataFrame(
 	{ 	'income_min' : [100, 200, 300, 400, 500],
 		'income_max' : [199, 299, 399, 499, 599],
@@ -28,6 +28,9 @@ df_data = pd.DataFrame(
 		'income2' : ['A', 'B', 'D', 'F', 'V', 'X']
 	}
 )
+
+# --- lookup_valrange ---
+
 
 
 df_data['tax'] = df_data.apply(lookup_valrange, axis=1, args=('income2', df_lookup, 'income_min', 'income_max', 'tax_rate'))

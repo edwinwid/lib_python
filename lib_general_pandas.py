@@ -35,6 +35,7 @@
 
 import os, sys
 import pandas as pd
+import numpy as np
 import logging
 
 
@@ -42,20 +43,110 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-
+# =============================================================================
 # ---- functions not to be used with df.apply ----
+# =============================================================================
+
+def check_missingcols(df, collist):
+	''' Check if there's any missing columns from the input df
+
+	--- inputs:
+	* df 	 				: data frame to be checked
+	* colllist 				: list of reference column names, case sensitive
+
+	--- return:
+	* list of missing column names
+	'''
+	if not type(collist) is list:
+		raise TypeError('Input collist must be a list')
+	if not isinstance(df, pd.DataFrame):
+		raise TypeError('Input df  must be a Pandas data frame')
+
+	cols_df = list(df.columns.values)
+	return list(set(collist) - set(cols_df))
+
+
+def df_explode(df, col):
+	''' "Explode" a column whose entry is a list into multiple ROWS of the 
+		list elements (i.e. split and stacked)
+
+	--- inputs:
+	* df 	: data frame
+	* col 	: str of column name that is to be split and stacked
+
+	--- return:
+	* data frame
+	'''
+	# --- indexers ---
+	i = df[col].map(len)
+	j = np.repeat(np.arange(len(df)), i)  		# how much we should expand 
+												# the frame
+	k = np.concatenate(list(map(np.arange, i))) # element num
+
+	# --- expand the frame & remap ---
+	df = df.iloc[j]                             # expand
+	df[col] = list(map(lambda xs, i: xs[i], df[col], k))  # remap
+
+	return df
+
+
+def df_explode_col(df, col, header=[]):
+	''' "Explode" a column whose entry is a list into multiple COLS of the 
+		list elements (i.e. split and stacked)
+
+	--- inputs:
+	* df 			: data frame
+	* col 			: str of column name that is to be split and stacked
+	* OPT: header 	: list of new column names. If empty will use auto-numbering
+
+	--- return:
+	* data frame
+	'''
+	if len(header) > 0:
+		df_exploded = pd.DataFrame( df[col].tolist(), columns=header)
+	else:
+		df_exploded = pd.DataFrame( df[col].tolist())
+	df = df.drop(col, axis=1)
+	df_all = pd.concat([df, df_exploded], axis=1)
+
+	return df_all
+
+
+def outlier_whisker(ds, column, n_iqr=1.5):
+	''' Find the distribution-insensitive outlier from a data column. User
+		can define the multiplier of the inner-quartile range for outlier
+		identification threshold. n_iqr=1.5 is the standard practice.
+
+	--- inputs:
+	* df 			: data frame
+	* column 		: column name for outlier identification
+	* OPT: n_iqr 	: number of IQR for outlier identification threshold
+
+	--- return:
+	* dataframe w/ top outliers, dataframe w/ bottom outlier, non-outliers
+	'''
+	df_data = df[column]
+	q25 = df_data.quantile(0.25)
+	q75 = df_data.quantile(0.75)
+	iqr = q75 - q25
+	df_topOL = df_data[ df_data > (q25 + (n_iqr * iqr)) ]
+	df_btmOL = df_data[ df_data < (q25 - (n_iqr * iqr)) ]
+	df_noOL = df_data[ (df_data >= (q25 - (n_iqr * iqr))) &
+						df_data <= (q25 + (n_iqr * iqr)) ]
+
+	return df_topOL, df_btmOL, df_noOL
 
 
 
-# ---- aux functions for functions to be used with df.apply (main functions below) ----
-
-
-
-
+# =============================================================================
 # ---- df apply functions (to be used with df.apply) ----
+# =============================================================================
 
 def lookup_valrange(df, col_value, df_lookup, col_min, col_max, col_out, ge=True, le=True, firstentry='first'):
-	''' For each value in df[col_value], lookup for the range bracket in df_lookup, 
+	''' 
+	DEPRECATED. USE pandas.cut() instead.
+
+	For each value in df[col_value], lookup for the range bracket in df_lookup, 
 	and return the df[col_out] corresponding to that value range.
 	* Outputs string (for consistency). If multiple match, return string representation
 		of python list
